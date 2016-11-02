@@ -104,7 +104,7 @@
 			$
 				Hence $\tab\overline{M_1}~\equiv~-1~(mod~3)$\\
 				 $\tab\Rightarrow\overline{M_1}~\equiv{}~2~(mod~3)$
-			
+			%TODO - Complete example and tidy up
 	\end{itemize}
 	
 \subsection{Modular Exponentiation Algorithm}
@@ -156,7 +156,7 @@
 	\\
 	Hence, to aid in computing the least positive residue we can express the exponent in the original problem as $n=q\varphi(m)+r$. This helps us in that we can now write $a^{q\varphi(m)+r}$ and since we know that $a^{\varphi}~\equiv~1~(mod~m)$ the problem is reduced to finding the least positive residue of $a^r~(mod~m)$. This is because $a^n~\equiv~a^{q\varphi(m)+r}~\equiv~a^{q\varphi(m)}a^r~\equiv~a^{r}~(mod~m)$.
 	
-\section{Fermat's Factorization}
+\subsection{Fermat's Factorization}
 	\subsubsection{Statement}
 	Fermat's Factorization allows us to factorize an \emph{odd} integer using the difference of two squares. Given an odd integer $n$, and two factors $c$ and $d$ s.t. $n=cd$ we know that:\\
 		$
@@ -175,4 +175,54 @@
 					$\\
 		\end{itemize}
 
+\newpage		
+\section{Cryptosystems}
+
+\subsection{RSA Encryption}
+	\subsubsection{How it works}
+	Assume Bob wants to send Alice an encrypted message.
+	\begin{itemize}
+		\item Alice begins by choosing two large primes, $p$ and $q$
+		\item Alice then computes $n=pq$
+		\item Alice then chooses $e$ s.t. $e\in(1,\varphi(n))$ and GCD($e$,$\varphi(n)$)$=1$
+		\item Alice's \textbf{PUBLIC KEY} is ($e$,$n$)
+		\item Alice then computes her \textbf{PRIVATE KEY} $d$ using $de~\equiv~1~(mod~\varphi(n))$ (ie $d$ is the inverse of $e$ under modulus $\varphi(n)$)
+		\item Alice then shares her \textbf{PUBLIC KEY} with Bob
+		\item Bob encrypts his message $P$ using Alice's public key ($e$,$n$) in the formula:\\
+			$
+				\tabOne	C~\equiv~P^e~(mod~n)
+			$
+		\item Alice can decrypt the ciphertext $C$ using her private key $d$ the formula:\\
+			$
+				\tabOne P~\equiv~C^d~(mod~n)\\
+			$\\
+			This works because:\\
+			$
+				\tabOne	C^d~(mod~n)\\
+				\tabOne	\equiv {(P^e)}^d~(mod~n)\\
+				\tabOne	\equiv P^{ed}~(mod~n)\\
+				\tabOne	\equiv P^1~(mod~n)\\
+				\tabOne	\equiv P~(mod~n)\\
+			$
+	\end{itemize}
+	
+	\subsubsection{Signed Messages}
+	Assume Alice wants to send Bob a signed message.\\
+	Alice has public key ($e_A$,$n_A$) and private key $d_A$.\\
+	Bob has public key ($e_B$,$n_B$) and private key $d_B$.\\
+	Alice's signature is the plaintext $P$.\\
+	\begin{itemize}
+		\item Alice calculates $S~\equiv~P^{d_A}~(mod~n_A)$
+		\item Alice then computes $C~\equiv~S^{e_B}~(mod~n_B)$ and sends $c$ to Bob
+		\item Bob first performs the usual dechiphering $S~\equiv~C^{d_B}~(mod~n_B)$
+		\item Bob then computes $P~\equiv~S^{e_A}~(mod~n_A)$
+	\end{itemize}
+	Only Alice can perform the first step since only she knows her private key. The plaintext P will only be recovered correctly if Alice did indeed send the message (since Bob will be using her public key to decrypt). It provides more understanding to notice the following:\\
+
+	
+	\subsubsection{Evaluation}
+	If someone came into posession of a ciphertext $C$ and the sender's public key ($e$,$n$) they would not be able to easily decipher the ciphertext $C$ since they would need to find the inverse of $e$ modulo $\varphi(n)$. This would be an easy task but finding $\varphi(n)$ is very difficult to do when the prime factorization of $n$ is not known. It is an unproved assumption that there is no easier way to decipher $C$ than by first factoring $n=pq$ and then using this to determine $\varphi(n)$ and in turn using this to find the inverse of $e$ modulo $\varphi(n)$.
+	
+\subsection{Elgamal Encryption}
+	\subsubsection{}
 \end{document}
