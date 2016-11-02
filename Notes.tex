@@ -1,0 +1,178 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Coding and Cryptography Notes}
+\author{Daniel da Silva}
+\date{November 2016}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage{float}
+\usepackage{hyperref}
+
+\newcommand\tab[1][3cm]{\hspace*{#1}}
+\newcommand\tabOne[1][1cm]{\hspace*{#1}}
+
+\begin{document}
+
+\maketitle
+
+\section{Theorem and Algorithms}
+\subsection{Euclids's Algorithm}
+	\subsubsection{Statement}
+	To find the GCD of two numbers, say $a$ and $b$ ($b < a$), do the following:\\
+		$
+			\tab	a~=~q_0b~+~r_0\\
+			\tab	b~=~q_1r_0~+~r_1\\
+			\tab	r_0~=~q_2r_1~+~r_2\\
+			\tab	r_1~=~q_3r_2~+~r_3\\
+			\tab	.\\
+			\tab	.\\
+			\tab	.\\
+		$\\
+	Since the remainder is decreasing with every step but cannot be negative, there will eventually be a remainder $r_N$ which is equal to zero, at which point the algorithm stops. The remainder $r_{N-1}$ is the GCD of $a$ and $b$. If ($a < b$) swap $a$ and $b$ before beginning the algorithm.
+	
+	\subsubsection{Euclid's Algorithm for finding modular inverses}
+	Assume we have two integers $a$ and $b$ which are co-prime. We want to find the inverse of $a~(mod~b)$, denoted $\overline{a}$. We know from the definition of the modular inverse that $a\overline{a}~\equiv~1~(mod~b)$. Hence our task is to solve the equation $ax~+~by~=~1$ for $x$ and $y$ which will give us $x=\overline{a}$.\\
+	\newpage
+	We do this by using Euclid's Algorithm and stopping when the remainder is equal to 1:\\
+		$
+			\tab	a~=~q_0b~+~r_0\\
+			\tab	b~=~q_1r_0~+~r_1\\
+			\tab	r_0~=~q_2r_1~+~r_2\\
+			\tab	r_1~=~q_3r_2~+~r_3\\
+			\tab	.\\
+			\tab	.\\
+			\tab	.\\
+			\tab	r_{N-3}~=~q_{N-1}r_{N-2}~+~r_{N-1}\\
+		$\\
+	We know that $r_{N-1}=1$ because $a$ and $b$ are co-prime and hence their GCD is 1. We now re-write the equations and subtitute back until we end with an equation of the form $1~=~ax~+by$ and we will have $\overline{a}~\equiv~x~(mod~b)$.
+	
+\subsection{Chinese Remainder Theorem}
+	\subsubsection{Statement}
+	The Chinese Remainder Theorem states that the system of congruences,\\
+		$
+			\tab	x~\equiv~a_1~(mod~m_1)\\
+			\tab	x~\equiv~a_2~(mod~m_2)\\
+			\tab	.\\
+			\tab	.\\
+			\tab	.\\
+			\tab	x~\equiv~a_r~(mod~m_r)\\
+		$\\
+	where the modulo $m_1, m_2,...,m_r$ are all pairwise coprime has a unique solution modulo $M$ given by\\
+		$
+			\tab	x~\equiv~a_1(M_1\overline{M_1}) + a_2(M_2\overline{M_2}) + ... + a_r(M_r\overline{M_r})~(mod~M)
+		$ 
+		where
+	\begin{itemize}
+		\item $M = m_1m_2...m_r$
+		\item $M_i = \frac{M}{m_i}$
+		\item $M_i\overline{M_i} \equiv 1~(mod~m_i)$
+	\end{itemize}
+	
+	\subsubsection{Example 1}
+	Let\\
+		$
+			\tab	x~\equiv~0~(mod~3)\\
+			\tab	x~\equiv~3~(mod~4)\\
+			\tab	x~\equiv~4~(mod~5)\\
+		$\\
+	Find $x~(mod M)$
+	
+	\begin{itemize}
+		\item
+			$M~=~m_1m_2m_3~=~(3)(4)(5)~=~60$
+		\item
+			$
+				M_1~=~\frac{M}{m_1}~=~\frac{60}{3}~=~20\\
+				M_2~=~\frac{M}{m_2}~=~\frac{60}{4}~=~15\\
+				M_3~=~\frac{M}{m_3}~=~\frac{60}{5}~=~12\\
+			$
+		\item
+			$
+				\tab				~~~~~M_1\overline{M_1}~\equiv~1~(mod~m_i)\\
+				\tab \Rightarrow	20\overline{M_1}~\equiv~1~(mod~3)\\
+				Using~Euclid's~Algorithm:\\
+				Solving~1~=~20\overline{M_1}~-~3y\\
+				\tab	20~=~3(6)~+~2\\
+				\tab	3~=~2(1)~+~1\\
+				\tab	Substituting~back:\\
+				\tab	3~=~(20-3(6))(1)~+~1\\
+				\tab	3~=~20(1)~-~3(6)~+~1\\
+				\tab	1~=~3(7)~+~20(-1)\\
+			$
+				Hence $\tab\overline{M_1}~\equiv~-1~(mod~3)$\\
+				 $\tab\Rightarrow\overline{M_1}~\equiv{}~2~(mod~3)$
+			
+	\end{itemize}
+	
+\subsection{Modular Exponentiation Algorithm}
+	\subsubsection{Statement}
+	To find the least postive residue of $a^n~(mod m)$ where $n$ is a large number do the following:
+		\begin{itemize}
+			\item Express n in binary to get $n~=~(b_0)2^0+(b_1)2^1+(b_2)2^2+...+(b_k)2^k~(b_i\in[0,1])$
+			\item Calculate the least positive residues modulo $n$ for $a^{2^0},~a^{2^1},...,~a^{2^k}$
+			\item Multiply the least positive residues whose corresponding bit is 1 in the first step.
+			\item Find the least positive residue of the result above. 
+		\end{itemize}
+	
+	\subsubsection{Example}
+	What is the least positive residue of $3^231~modulo~49$?\\
+		\begin{itemize}
+			\item 231 in binary:\\
+				\tabOne $231~=~(1)2^7+(1)2^6+(1)2^5+(0)2^4+(0)2^3+(1)2^2+(1)2^1+(1)2^0$\\
+				\tabOne Hence $231~=~(1110 0111)_2$
+			\item Least positive residues modulo 49 for $3^{2^0},~3^{2^1},...,~3^{2^7}$:\\
+				$b_0=1$\tabOne $3^{2^0}~\equiv~3^{1}~\equiv~3~(mod~49)$\\
+				$b_1=1$\tabOne $3^{2^1}~\equiv~3^{2}~\equiv~9~(mod~49)$\\
+				$b_2=1$\tabOne $3^{2^2}~\equiv~3^{4}~\equiv~9^2~\equiv~32~(mod~49)$\\
+				$b_3=0$\tabOne $3^{2^3}~\equiv~3^{8}~\equiv~32^2~\equiv~44~(mod~49)$\\
+				$b_4=0$\tabOne $3^{2^4}~\equiv~3^{16}~\equiv~44^2~\equiv~25~(mod~49)$\\
+				$b_5=1$\tabOne $3^{2^5}~\equiv~3^{32}~\equiv~25^2~\equiv~37~(mod~49)$\\
+				$b_6=1$\tabOne $3^{2^6}~\equiv~3^{64}~\equiv~37^2~\equiv~46~(mod~49)$\\
+				$b_7=1$\tabOne $3^{2^7}~\equiv~3^{128}~\equiv~46^2~\equiv~9~(mod~49)$\\
+			\item Multiply results where $b_i=1$:\\
+				\tabOne $(3)(9)(32)(37)(46)(9) = 13234752$
+			\item Find least positive residue of above result:\\
+				\tabOne $3^{231}~\equiv~(3^{2^7})(3^{2^6})(3^{2^5})(3^{2^2})(3^{2^1})(3^{2^0})~\equiv~13234752~\equiv~48~(mod~49)$
+		\end{itemize}
+	
+	\subsubsection{Explanation of Algorithm}
+	We know from the definition of the mod function that:\\
+		$
+			\tab	a~\equiv~r_1~(mod~m)\\
+			\tab	b~\equiv~r_2~(mod~m)\\
+			\tab \Rightarrow ab~\equiv~r_1r_2~(mod~m) \\
+		$\\
+	This is what allows us to complete step 2 in the algorithm.\\
+	\\
+	Furthermore, we know that $a^xa^y=a^{x+y}$ which is what allows us to split up the work in the algorithm and then recombine the results.
+	
+	\subsubsection{Fast-tracking the algorithm}
+	Before applying the Modular Exponentiation Algorithm, we can eliminate a lot of the work by applying Euler's Theorem:\\
+	For any modulus $n$ and integer $a$ which are co-prime (ie GCD($a$,$n$)=1) we have that:\\
+		\tabOne $a^{\varphi(m)}~\equiv~1~(mod~m)$\\
+	\\
+	Hence, to aid in computing the least positive residue we can express the exponent in the original problem as $n=q\varphi(m)+r$. This helps us in that we can now write $a^{q\varphi(m)+r}$ and since we know that $a^{\varphi}~\equiv~1~(mod~m)$ the problem is reduced to finding the least positive residue of $a^r~(mod~m)$. This is because $a^n~\equiv~a^{q\varphi(m)+r}~\equiv~a^{q\varphi(m)}a^r~\equiv~a^{r}~(mod~m)$.
+	
+\section{Fermat's Factorization}
+	\subsubsection{Statement}
+	Fermat's Factorization allows us to factorize an \emph{odd} integer using the difference of two squares. Given an odd integer $n$, and two factors $c$ and $d$ s.t. $n=cd$ we know that:\\
+		$
+			\tab	n=(\frac{c+d}{2})^2-(\frac{c-d}{2})^2\\
+		$\\
+	The method is as follows:
+		\begin{itemize}
+			\item We start by choosing $a=\lceil\sqrt{n}\rceil$
+			\item We then calculate $n-a^2=z$
+			\item If $z$ is a perfect square, we have found $b=\sqrt{z}$
+			\item If $z$ is not a perfect square, we increment $a$, and try again until we get a $z$ which is a perfect square or we ascertain that $n$ is a prime.
+			\item Once we have $a$ and $b$, the factors of $n$ are calculated as:\\
+					$
+						\tabOne c=a+b\\
+						\tabOne d=a-b\\
+					$\\
+		\end{itemize}
+
+\end{document}
