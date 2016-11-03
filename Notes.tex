@@ -13,6 +13,7 @@
 
 \newcommand\tab[1][3cm]{\hspace*{#1}}
 \newcommand\tabOne[1][1cm]{\hspace*{#1}}
+\newcommand\tabTwo[1][2cm]{\hspace*{#1}}
 
 \begin{document}
 
@@ -187,12 +188,12 @@
 		\item Alice then chooses $e$ s.t. $e\in(1,\varphi(n))$ and GCD($e$,$\varphi(n)$)$=1$
 		\item Alice's \textbf{PUBLIC KEY} is ($e$,$n$)
 		\item Alice then computes her \textbf{PRIVATE KEY} $d$ using $de~\equiv~1~(mod~\varphi(n))$ (ie $d$ is the inverse of $e$ under modulus $\varphi(n)$)
-		\item Alice then shares her \textbf{PUBLIC KEY} with Bob
+		\item Alice then shares her public key with Bob
 		\item Bob encrypts his message $P$ using Alice's public key ($e$,$n$) in the formula:\\
 			$
 				\tabOne	C~\equiv~P^e~(mod~n)
 			$
-		\item Alice can decrypt the ciphertext $C$ using her private key $d$ the formula:\\
+		\item Alice can decrypt the ciphertext $C$ using her private key $d$ in the formula:\\
 			$
 				\tabOne P~\equiv~C^d~(mod~n)\\
 			$\\
@@ -217,12 +218,51 @@
 		\item Bob first performs the usual dechiphering $S~\equiv~C^{d_B}~(mod~n_B)$
 		\item Bob then computes $P~\equiv~S^{e_A}~(mod~n_A)$
 	\end{itemize}
-	Only Alice can perform the first step since only she knows her private key. The plaintext P will only be recovered correctly if Alice did indeed send the message (since Bob will be using her public key to decrypt). It provides more understanding to notice the following:\\
+	Only Alice can perform the first step since only she knows her private key. The plaintext P will only be recovered correctly if Alice did indeed send the message (since Bob will be using her public key to decrypt).
 
 	
 	\subsubsection{Evaluation}
 	If someone came into posession of a ciphertext $C$ and the sender's public key ($e$,$n$) they would not be able to easily decipher the ciphertext $C$ since they would need to find the inverse of $e$ modulo $\varphi(n)$. This would be an easy task but finding $\varphi(n)$ is very difficult to do when the prime factorization of $n$ is not known. It is an unproved assumption that there is no easier way to decipher $C$ than by first factoring $n=pq$ and then using this to determine $\varphi(n)$ and in turn using this to find the inverse of $e$ modulo $\varphi(n)$.
 	
 \subsection{Elgamal Encryption}
-	\subsubsection{}
+	\subsubsection{How it works}
+	Assume Bob wants to send Alice an encrypted message.
+	\begin{itemize}
+		\item Alice chooses a prime $p$
+		\item Alice calculates $g$, the primitive root of $p$
+		\item Alice selects her \textbf{PRIVATE KEY} $a$, s.t. $0<a<p-1$
+		\item Alice computes $b~\equiv~g^a~(mod~p)$
+		\item Alice's \textbf{PUBLIC KEY} is ($g$,$b$,$p$)
+		\item Bob's message must be subject to $0<M<p$
+		\item Bob chooses a random number $r$ s.t. $1<r<p-1$
+		\item Bob then calculates the following two numbers using Alice's public key:\\
+			$
+				\tabOne y_1~\equiv~g^r~(mod~p)\\
+				\tabOne y_2~\equiv~Mb^r~(mod~p)\\
+			$\\
+		\item The ciphertext is then $E_x(M)=(y_1,y_2)$
+		\item To decrypt Alice uses her private key in the formula:\\
+			$
+				\tabOne D_k(y_1,y_2)~\equiv~y_2(y_1)^{-a}~(mod~p)\\
+			$\\
+			This works because:\\
+			$
+				\tabOne D_k(y_1,y_2)~\equiv~y_2y_1^{-a}~(mod~p)\\
+				\tabTwo \equiv~y_2(g)^{-ar}~(mod~p)\\
+				\tabTwo \equiv~y_2(g^a)^{-r}~(mod~p)\\
+				\tabTwo \equiv~mb^r(b)^{-r}~(mod~p)\\
+				\tabTwo \equiv~m~(mod~p)\\
+			$
+	\end{itemize}
+	
+	\subsubsection{Signed Messages}
+	Assume Alice wants to send Bob a signed message.\\
+	Bob's public key is ($g$,$b$,$p$).\\
+	The message is $m$.\\
+	\begin{itemize}
+		\item Alice selects a random number $r$ s.t. GCD($r$,$p-1$)$=1$ and computes $y~\equiv~g^r~(mod~p)$
+		\item Alice then computes $S~\equiv~(m-ag)r^(-1)~(mod~p-1)$
+		\item The signature is ($y$,$s$)
+	\end{itemize}
+	
 \end{document}
